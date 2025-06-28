@@ -60,7 +60,6 @@ spec:
                   }
 
                   sh """
-                    eval \$(minikube docker-env)
                     docker build -t ${svc}:${IMAGE_TAG} ${buildCtx}
                   """
                 }
@@ -74,9 +73,11 @@ spec:
     stage('Deploy via Helm') {
       steps {
         sh '''
-        helm upgrade --install otel-demo $CHART \
-          --namespace $KUBE_NS \
-          --set image.tag=$IMAGE_TAG
+            helm upgrade --install otel-demo $CHART \
+            --namespace $KUBE_NS \
+            --set image.repository=${svc} \
+            --set image.tag=${IMAGE_TAG} \
+            --set image.pullPolicy=Never
         '''
       }
     }
