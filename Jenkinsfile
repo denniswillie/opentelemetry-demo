@@ -71,6 +71,9 @@ spec:
     }
 
     stage('Deploy via Helm') {
+      when {
+        expression { return env.CHANGED_SERVICES }
+      }
       steps {
         sh '''
             helm upgrade --install otel-demo $CHART \
