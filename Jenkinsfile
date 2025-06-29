@@ -77,8 +77,8 @@ spec:
             helm repo update
             helm upgrade --install otel-demo $CHART \
               --namespace $KUBE_NS \
-              --set image.tag=$IMAGE_TAG \
-              --set image.pullPolicy=Never
+              --set default.image.tag=$IMAGE_TAG \
+              --set default.image.pullPolicy=Never
           """
         }
       }
