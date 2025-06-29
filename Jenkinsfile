@@ -15,8 +15,13 @@ spec:
   serviceAccountName: jenkins-helm
   containers:
   - name: docker
-    image: docker:25-git
+    image: docker:25-cli
     tty: true
+    env:
+    - name: DOCKER_HOST         # tell the CLI where the daemon is
+      value: unix:///var/run/docker.sock
+    - name: DOCKER_TLS_CERTDIR  # disable the dind entry-point logic if present
+      value: ""
     securityContext:
       privileged: true
     volumeMounts:
