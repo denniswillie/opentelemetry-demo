@@ -77,16 +77,22 @@ spec:
         expression { return env.CHANGED_SERVICES }
       }
       steps {
-        container('helm') {        // run the helm command in the new container
-          sh """
-            # Ensure repo present
-            helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts || true
-            helm repo update
-            helm upgrade --install otel-demo $CHART \
-              --namespace $KUBE_NS \
-              --set default.image.tag=$IMAGE_TAG \
-              --set default.image.pullPolicy=Never
-          """
+        container('helm') {
+          script {
+            def servicesArgs = env.CHANGED_SERVICES.split().collect { svc ->
+              "--set ${svc}.image.tag=${IMAGE_TAG} --set ${svc}.image.pullPolicy=Never"
+            }.join(' ')
+
+            sh """
+              # Ensure repo present
+              helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts || true
+              helm repo update
+              helm upgrade --install otel-demo $CHART \
+                --namespace $KUBE_NS \
+                --reuse-values \
+                ${servicesArgs}
+            """
+          }
         }
       }
     }
