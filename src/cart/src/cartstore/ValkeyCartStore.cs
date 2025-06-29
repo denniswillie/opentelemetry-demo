@@ -97,10 +97,10 @@ public class ValkeyCartStore : ICartStore
                 throw new ApplicationException("Wasn't able to connect to redis");
             }
 
-            _logger.LogInformation("Successfully connected to Redis");
+            _logger.LogInformation("Successfully connected to Redis yeay");
             var cache = _redis.GetDatabase();
 
-            _logger.LogDebug("Performing a really small test");
+            _logger.LogDebug("Performing a really really small test");
             cache.StringSet("cart", "OK" );
             object res = cache.StringGet("cart");
             _logger.LogDebug("Small test result: {res}", res);
