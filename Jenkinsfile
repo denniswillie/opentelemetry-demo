@@ -8,14 +8,21 @@ metadata:
   labels:
     app: jenkins-agent
 spec:
+  volumes:
+  - name: dockersock
+    hostPath:
+      path: /var/run/docker.sock
   serviceAccountName: jenkins-helm
   containers:
-  - name: docker                 # ⬅ keeps the old image-build steps working
+  - name: docker
     image: docker:25
     tty: true
     securityContext:
       privileged: true
-  - name: helm                   # ⬅ brand-new container with helm installed
+    volumeMounts:
+    - name: dockersock
+      mountPath: /var/run/docker.sock
+  - name: helm
     image: alpine/helm:3   # Any image that has helm 3 is fine
     command: ["cat"]             # Keeps the container alive waiting for Jenkins
     tty: true
