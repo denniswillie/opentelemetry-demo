@@ -15,7 +15,7 @@ spec:
   serviceAccountName: jenkins-helm
   containers:
   - name: docker
-    image: docker:25
+    image: docker:25-git
     tty: true
     securityContext:
       privileged: true
@@ -37,7 +37,13 @@ spec:
   }
 
   stages {
-    stage('Checkout')  { steps { checkout scm } }
+    stage('Checkout')  {
+      steps {
+        container('jnlp') {
+          checkout scm
+        }
+      }
+    }
 
     stage('Determine Changed Services') {
       steps {
