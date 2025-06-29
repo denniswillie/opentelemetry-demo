@@ -1,14 +1,26 @@
 pipeline {
-  agent { kubernetes { yaml """apiVersion: v1
+  agent {
+    kubernetes {
+      yaml """
+apiVersion: v1
 kind: Pod
-metadata: { labels: { app: jenkins-agent } }
+metadata:
+  labels:
+    app: jenkins-agent
 spec:
   containers:
-  - name: docker
+  - name: docker                 # ⬅ keeps the old image-build steps working
     image: docker:25
     tty: true
-    securityContext: { privileged: true }
-  """ } }
+    securityContext:
+      privileged: true
+  - name: helm                   # ⬅ brand-new container with helm installed
+    image: alpine/helm:3.14.4    # Any image that has helm 3 is fine
+    command: ["cat"]             # Keeps the container alive waiting for Jenkins
+    tty: true
+"""
+    }
+  }
 
   environment {
     IMAGE_TAG = "local"
@@ -75,13 +87,15 @@ spec:
         expression { return env.CHANGED_SERVICES }
       }
       steps {
-        sh '''
-            helm upgrade --install otel-demo $CHART \
-            --namespace $KUBE_NS \
-            --set image.repository=${svc} \
-            --set image.tag=${IMAGE_TAG} \
-            --set image.pullPolicy=Never
-        '''
+        container('helm') {        // run the helm command in the new container
+          sh """
+            helm upgrade --install otel-demo \$CHART \
+              --namespace \$KUBE_NS \
+              --set image.repository=\${svc} \
+              --set image.tag=\$IMAGE_TAG \
+              --set image.pullPolicy=Never
+          """
+        }
       }
     }
   }
