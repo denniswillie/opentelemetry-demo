@@ -23,7 +23,7 @@ spec:
   }
 
   environment {
-    IMAGE_TAG = "local"
+    IMAGE_TAG = "latest"
     CHART = "open-telemetry/opentelemetry-demo"
     KUBE_NS = "otel-demo"
   }
@@ -57,27 +57,9 @@ spec:
       }
       steps {
         container('docker') {
-          script {
-            env.CHANGED_SERVICES.split().each { svc ->
-              dir("src/${svc}") {
-                script {
-                  def buildCtx = '.'
-                  if (!fileExists('Dockerfile')) {
-                    if (fileExists('src/Dockerfile')) {
-                      buildCtx = 'src'
-                    } else {
-                      echo "Skipping ${svc}: no Dockerfile found in expected locations"
-                      return
-                    }
-                  }
-
-                  sh """
-                    docker build -t ${svc}:${IMAGE_TAG} ${buildCtx}
-                  """
-                }
-              }
-            }
-          }
+          sh """
+            docker compose -f docker-compose.yml build ${env.CHANGED_SERVICES}
+          """
         }
       }
     }
@@ -91,7 +73,6 @@ spec:
           sh """
             helm upgrade --install otel-demo \$CHART \
               --namespace \$KUBE_NS \
-              --set image.repository=\${svc} \
               --set image.tag=\$IMAGE_TAG \
               --set image.pullPolicy=Never
           """
