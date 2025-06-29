@@ -100,7 +100,7 @@ public class ValkeyCartStore : ICartStore
             _logger.LogInformation("Successfully connected to Redis");
             var cache = _redis.GetDatabase();
 
-            _logger.LogDebug("Performing a small test");
+            _logger.LogDebug("Performing a really small test");
             cache.StringSet("cart", "OK" );
             object res = cache.StringGet("cart");
             _logger.LogDebug("Small test result: {res}", res);
