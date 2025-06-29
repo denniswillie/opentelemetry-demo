@@ -72,10 +72,11 @@ spec:
       steps {
         container('helm') {        // run the helm command in the new container
           sh """
-            # Ensure repo present
-            helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts || true
-            helm repo update
-            helm upgrade --install otel-demo $CHART \
+            # Ensure chart source locally (workaround for objects.githubusercontent.com access issues)
+            if [ ! -d opentelemetry-helm-charts ]; then
+              git clone --depth 1 https://github.com/open-telemetry/opentelemetry-helm-charts.git
+            fi
+            helm upgrade --install otel-demo ./opentelemetry-helm-charts/charts/opentelemetry-demo \
               --namespace $KUBE_NS \
               --set default.image.tag=$IMAGE_TAG \
               --set default.image.pullPolicy=Never
