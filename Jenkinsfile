@@ -91,7 +91,7 @@ spec:
         container('helm') {
           script {
             def servicesArgs = env.CHANGED_SERVICES.split().collect { svc ->
-              "--set components.${svc}.image.tag=${IMAGE_TAG} --set components.${svc}.image.pullPolicy=Never"
+              "--set components.${svc}.imageOverride.tag=${IMAGE_TAG}"
             }.join(' ')
 
             sh """
