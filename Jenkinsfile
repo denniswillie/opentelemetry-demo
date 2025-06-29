@@ -16,7 +16,7 @@ spec:
     securityContext:
       privileged: true
   - name: helm                   # ⬅ brand-new container with helm installed
-    image: ghcr.io/helm/helm:v3.14.4    # Any image that has helm 3 is fine
+    image: alpine/helm:3   # Any image that has helm 3 is fine
     command: ["cat"]             # Keeps the container alive waiting for Jenkins
     tty: true
 """
@@ -77,8 +77,8 @@ spec:
             helm repo update
             helm upgrade --install otel-demo $CHART \
               --namespace $KUBE_NS \
-              --set default.image.tag=$IMAGE_TAG \
-              --set default.image.pullPolicy=Never
+              --set image.tag=$IMAGE_TAG \
+              --set image.pullPolicy=Never
           """
         }
       }
