@@ -72,9 +72,12 @@ spec:
       steps {
         container('helm') {        // run the helm command in the new container
           sh """
-            helm upgrade --install otel-demo \$CHART \
-              --namespace \$KUBE_NS \
-              --set image.tag=\$IMAGE_TAG \
+            # Ensure repo present
+            helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts || true
+            helm repo update
+            helm upgrade --install otel-demo $CHART \
+              --namespace $KUBE_NS \
+              --set image.tag=$IMAGE_TAG \
               --set image.pullPolicy=Never
           """
         }
