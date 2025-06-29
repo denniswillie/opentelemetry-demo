@@ -16,7 +16,7 @@ spec:
     securityContext:
       privileged: true
   - name: helm                   # ⬅ brand-new container with helm installed
-    image: alpine/helm:3.14.4    # Any image that has helm 3 is fine
+    image: ghcr.io/helm/helm:v3.14.4    # Any image that has helm 3 is fine
     command: ["cat"]             # Keeps the container alive waiting for Jenkins
     tty: true
 """
@@ -72,11 +72,10 @@ spec:
       steps {
         container('helm') {        // run the helm command in the new container
           sh """
-            # Ensure chart source locally (workaround for objects.githubusercontent.com access issues)
-            if [ ! -d opentelemetry-helm-charts ]; then
-              git clone --depth 1 https://github.com/open-telemetry/opentelemetry-helm-charts.git
-            fi
-            helm upgrade --install otel-demo ./opentelemetry-helm-charts/charts/opentelemetry-demo \
+            # Ensure repo present
+            helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts || true
+            helm repo update
+            helm upgrade --install otel-demo $CHART \
               --namespace $KUBE_NS \
               --set default.image.tag=$IMAGE_TAG \
               --set default.image.pullPolicy=Never
