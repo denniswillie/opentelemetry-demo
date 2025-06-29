@@ -8,6 +8,7 @@ metadata:
   labels:
     app: jenkins-agent
 spec:
+  serviceAccountName: jenkins-helm
   containers:
   - name: docker                 # ⬅ keeps the old image-build steps working
     image: docker:25
